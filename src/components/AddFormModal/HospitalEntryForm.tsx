@@ -1,18 +1,20 @@
 import { useState, SyntheticEvent } from "react";
-import { TextField, Grid, Button } from '@mui/material';
-import { HospitalFormValues } from "../../types";
+import { TextField, Grid, Button, InputLabel, Select, MenuItem, OutlinedInput, Chip, Box } from '@mui/material';
+import { HospitalFormValues, Diagnosis } from "../../types";
 
 interface Props {
     onCancel: () => void;
     onSubmit: (values: HospitalFormValues) => void;
+    diagnoses: Diagnosis[];
 }
 
-const AddHospitalEntryForm = ({ onCancel, onSubmit }: Props) => {
+const AddHospitalEntryForm = ({ onCancel, onSubmit, diagnoses }: Props) => {
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
     const [specialist, setSpecialist] = useState('');
     const [dischargeDate, setDischargeDate] = useState('');
     const [dischargeCriteria, setDischargeCriteria] = useState('');
+    const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
 
     const addHospitalEntry = (event: SyntheticEvent) => {
         event.preventDefault();
@@ -21,6 +23,7 @@ const AddHospitalEntryForm = ({ onCancel, onSubmit }: Props) => {
             date,
             specialist,
             type: "Hospital",
+            diagnosisCodes,
             discharge: dischargeDate && dischargeCriteria
                 ? { date: dischargeDate, criteria: dischargeCriteria }
                 : undefined
@@ -42,19 +45,19 @@ const AddHospitalEntryForm = ({ onCancel, onSubmit }: Props) => {
                     value={specialist}
                     onChange={({ target }) => setSpecialist(target.value)}
                 />
-                <TextField
-                    label="Date"
-                    placeholder="YYYY-MM-DD"
-                    fullWidth
+                <InputLabel style={{ marginTop: 20 }}>Date</InputLabel>
+                <input
+                    type="date"
                     value={date}
                     onChange={({ target }) => setDate(target.value)}
+                    style={{ width: "100%", padding: "8px" }}
                 />
-                <TextField
-                    label="Discharge Date"
-                    placeholder="YYYY-MM-DD"
-                    fullWidth
+                <InputLabel style={{ marginTop: 20 }}>Discharge Date</InputLabel>
+                <input
+                    type="date"
                     value={dischargeDate}
                     onChange={({ target }) => setDischargeDate(target.value)}
+                    style={{ width: "100%", padding: "8px" }}
                 />
                 <TextField
                     label="Discharge Criteria"
@@ -62,6 +65,30 @@ const AddHospitalEntryForm = ({ onCancel, onSubmit }: Props) => {
                     value={dischargeCriteria}
                     onChange={({ target }) => setDischargeCriteria(target.value)}
                 />
+                <InputLabel style={{ marginTop: 20 }}>Diagnosis Codes</InputLabel>
+                <Select
+                    multiple
+                    fullWidth
+                    value={diagnosisCodes}
+                    onChange={(event) => {
+                        const value = event.target.value;
+                        setDiagnosisCodes(typeof value === "string" ? value.split(",") : value);
+                    }}
+                    input={<OutlinedInput />}
+                    renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            {selected.map((value) => (
+                                <Chip key={value} label={value} />
+                            ))}
+                        </Box>
+                    )}
+                >
+                    {diagnoses.map(d => (
+                        <MenuItem key={d.code} value={d.code}>
+                            {d.code} - {d.name}
+                        </MenuItem>
+                    ))}
+                </Select>
                 <Grid>
                     <Grid item>
                         <Button

@@ -1,10 +1,11 @@
 import { useState, SyntheticEvent } from "react";
-import { TextField, InputLabel, MenuItem, Select, Grid, Button, SelectChangeEvent } from '@mui/material';
-import { HealthCheckFormValues, HealthCheckRating } from "../../types";
+import { TextField, InputLabel, MenuItem, Select, Grid, Button, SelectChangeEvent, OutlinedInput, Chip, Box } from '@mui/material';
+import { HealthCheckFormValues, HealthCheckRating, Diagnosis } from "../../types";
 
 interface Props {
     onCancel: () => void;
     onSubmit: (values: HealthCheckFormValues) => void;
+    diagnoses: Diagnosis[];
 }
 
 interface HealthCheckRatingOption {
@@ -19,11 +20,12 @@ const healthCheckOptions: HealthCheckRatingOption[] = Object.values(HealthCheckR
         label: HealthCheckRating[v as number]
     }));
 
-const AddHealthCheckForm = ({ onCancel, onSubmit }: Props) => {
+const AddHealthCheckForm = ({ onCancel, onSubmit, diagnoses }: Props) => {
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
     const [specialist, setSpecialist] = useState('');
     const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(HealthCheckRating.LowRisk);
+    const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
 
     const onHealthCheckRatingChange = (event: SelectChangeEvent<string>) => {
         event.preventDefault();
@@ -40,6 +42,7 @@ const AddHealthCheckForm = ({ onCancel, onSubmit }: Props) => {
             date,
             specialist,
             healthCheckRating,
+            diagnosisCodes,
             type: "HealthCheck"
         });
     };
@@ -59,12 +62,12 @@ const AddHealthCheckForm = ({ onCancel, onSubmit }: Props) => {
                     value={specialist}
                     onChange={({ target }) => setSpecialist(target.value)}
                 />
-                <TextField
-                    label="Date"
-                    placeholder="YYYY-MM-DD"
-                    fullWidth
+                <InputLabel style={{ marginTop: 20 }}>Date</InputLabel>
+                <input
+                    type="date"
                     value={date}
                     onChange={({ target }) => setDate(target.value)}
+                    style={{ width: "100%", padding: "8px" }}
                 />
                 <InputLabel style={{ marginTop: 20 }}>Health Check Rating</InputLabel>
                 <Select
@@ -73,13 +76,34 @@ const AddHealthCheckForm = ({ onCancel, onSubmit }: Props) => {
                     onChange={onHealthCheckRatingChange}
                 >
                     {healthCheckOptions.map(option =>
-                        <MenuItem
-                            key={option.value}
-                            value={option.value}
-                        >
+                        <MenuItem key={option.value} value={option.value}>
                             {option.label}
                         </MenuItem>
                     )}
+                </Select>
+                <InputLabel style={{ marginTop: 20 }}>Diagnosis Codes</InputLabel>
+                <Select
+                    multiple
+                    fullWidth
+                    value={diagnosisCodes}
+                    onChange={(event) => {
+                        const value = event.target.value;
+                        setDiagnosisCodes(typeof value === "string" ? value.split(",") : value);
+                    }}
+                    input={<OutlinedInput />}
+                    renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            {selected.map((value) => (
+                                <Chip key={value} label={value} />
+                            ))}
+                        </Box>
+                    )}
+                >
+                    {diagnoses.map(d => (
+                        <MenuItem key={d.code} value={d.code}>
+                            {d.code} - {d.name}
+                        </MenuItem>
+                    ))}
                 </Select>
                 <Grid>
                     <Grid item>

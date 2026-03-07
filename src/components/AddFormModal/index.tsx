@@ -4,7 +4,7 @@ import { Dialog, DialogTitle, DialogContent, Divider, Alert, Select, MenuItem, I
 import AddHealthCheckForm from './HealthCheckForm';
 import AddHospitalEntryForm from './HospitalEntryForm';
 import AddOccupationalForm from './OccupationalHealthcareForm';
-import { HealthCheckFormValues, HospitalFormValues, OccupationalHealthcareFormValues } from '../../types';
+import { HealthCheckFormValues, HospitalFormValues, OccupationalHealthcareFormValues, Diagnosis } from '../../types';
 
 type EntryType = "HealthCheck" | "Hospital" | "OccupationalHealthcare";
 
@@ -13,9 +13,10 @@ interface Props {
     onClose: () => void;
     onSubmit: (values: HealthCheckFormValues | HospitalFormValues | OccupationalHealthcareFormValues) => void;
     error?: string;
+    diagnoses: Diagnosis[];
 }
 
-const AddEntryModal = ({ modalOpen, onClose, onSubmit, error }: Props) => {
+const AddEntryModal = ({ modalOpen, onClose, onSubmit, error, diagnoses }: Props) => {
     const [entryType, setEntryType] = useState<EntryType>("HealthCheck");
 
     const onEntryTypeChange = (event: SelectChangeEvent<string>) => {
@@ -34,9 +35,9 @@ const AddEntryModal = ({ modalOpen, onClose, onSubmit, error }: Props) => {
                     <MenuItem value="Hospital">Hospital</MenuItem>
                     <MenuItem value="OccupationalHealthcare">Occupational Healthcare</MenuItem>
                 </Select>
-                {entryType === "HealthCheck" && <AddHealthCheckForm onSubmit={onSubmit} onCancel={onClose} />}
-                {entryType === "Hospital" && <AddHospitalEntryForm onSubmit={onSubmit} onCancel={onClose} />}
-                {entryType === "OccupationalHealthcare" && <AddOccupationalForm onSubmit={onSubmit} onCancel={onClose} />}
+                {entryType === "HealthCheck" && <AddHealthCheckForm onSubmit={onSubmit} onCancel={onClose} diagnoses={diagnoses} />}
+                {entryType === "Hospital" && <AddHospitalEntryForm onSubmit={onSubmit} onCancel={onClose} diagnoses={diagnoses} />}
+                {entryType === "OccupationalHealthcare" && <AddOccupationalForm onSubmit={onSubmit} onCancel={onClose} diagnoses={diagnoses} />}
             </DialogContent>
         </Dialog>
     );
