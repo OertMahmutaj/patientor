@@ -27,6 +27,7 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
   const closeModal = (): void => {
     setModalOpen(false);
     setError(undefined);
+    (document.activeElement as HTMLElement)?.blur();
   };
 
   const submitNewPatient = async (values: PatientFormValues) => {
@@ -36,10 +37,9 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
       setModalOpen(false);
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        if (e?.response?.data && typeof e?.response?.data === "string") {
-          const message = e.response.data.replace('Something went wrong. Error: ', '');
-          console.error(message);
-          setError(message);
+        const errorMessage = e?.response?.data?.error;
+        if (errorMessage && typeof errorMessage === "string") {
+          setError(errorMessage);
         } else {
           setError("Unrecognized axios error");
         }
